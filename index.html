@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/webcamjs/1.0.26/webcam.js"></script>
+    <script src="https://unpkg.com/ml5@0.4.3/dist/ml5.min.js"></script>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Recognition</title>
+    <style>
+        body{
+            background: radial-gradient(circle at 0% 100%, rgb(196, 230, 241), rgb(154, 216, 240), rgb(84, 207, 255), rgb(0, 183, 255), rgb(0, 163, 227));
+            min-height: 100vh;
+            color: seagreen;
+        }
+        #camera{
+            height: 250px;
+            width: 360px;
+        }
+        hr{
+            height: 1.5px;
+            background-color: black;
+            width: 95%;
+        }
+    </style>
+</head>
+
+<body>
+    <center>
+        <h1>Image Recognition</h1>
+        <h5>Kindly click 'Allow' for the camera permissions.</h5>
+        <br>
+        <h4>This is the list of people the camera can identify:</h4>
+        <p style="font-size: 25px;"><b>Males</b></p>
+        <p style="font-size: 25px;"><b>Females</b></p><hr>
+        <h3>Webcam</h3>
+        <div id="camera"></div>
+        <br>
+        <div id="result"></div><br>
+        <button class="btn btn-warning" onclick="takeSnap()">Click A Selfie</button>
+        <button class="btn btn-warning" onclick="identify()">Identify The Image</button>
+        <br><br>
+        <p>Person: <span id="person"></span></p>
+        <p>Accuracy: <span id="accuracy"></span></p>
+    </center>
+    <script>
+        
+        Webcam.set({
+            height: 250,
+            width: 360,
+            img_format: 'png',
+            png_quality: 90
+        });
+        camera = document.getElementById('camera');
+        Webcam.attach('#camera');
+        function takeSnap(){
+            Webcam.snap(function(x){
+                document.getElementById('result').innerHTML = '<img id="img" src="' + x + '">';
+            });
+        }
+        console.log(ml5.version);
+        classifier = ml5.imageClassifier('https://teachablemachine.withgoogle.com/models/nJfkCmp2p/model.json', modelLoaded);
+        function modelLoaded(){
+            console.log('Updated');
+        }
+        function identify(){
+            img = document.getElementById('img');
+            classifier.classify(img, gotResult);
+        }
+        function gotResult(error, result){
+            if(error){
+                console.log(error);
+            } else {
+                console.log(result);
+                document.getElementById('person').innerHTML = result[0].label;
+                document.getElementById('accuracy').innerHTML = (result[0].confidence.toFixed(2))*100 + '%';
+            }
+        }
+    </script>
+</body>
+
+</html>
